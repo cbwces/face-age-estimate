@@ -1,0 +1,17 @@
+data_file: # your image list path
+data_file_info: # crop info about image
+margin: 0
+img_size: 224
+num_classes: 101
+test_size: 0.2
+cuda: true
+model: ./age_model.pth
+test_preprocess:
+  resize: 224
+test_time_augmentation:
+  random_flip: 0.5
+  random_jit: [[0.5, 2], [0.5, 2], [0.5, 2]]
+  random_rotate: [-15, 15]
+stn: false
+tta_mode: 5
+

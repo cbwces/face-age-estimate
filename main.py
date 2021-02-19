@@ -5,9 +5,7 @@ import torch
 from torch import nn as nn
 from torch.nn import functional as F
 import numpy as np
-import cv2
 from torch.utils.data import DataLoader
-from torchvision import datasets 
 from sklearn.metrics import mean_absolute_error
 from image_utils import AgeData, SplitDataset 
 from network_utils import NormCost, StnModule
@@ -35,7 +33,7 @@ spliter = SplitDataset(args['data_file'])
 # train_split_pair, test_split_pair = spliter.transform(shuffle=True, test_size=args['test_size'], stratify=True)
 train_split_pair, test_split_pair = spliter.transform(shuffle=True, test_size=args['test_size'], stratify=False)
 train_set = AgeData(train_split_pair, is_train=True, normal_aug=args['train_augmentation'], num_classes=args['num_classes'], img_size=args['img_size'], crop_info=args['data_file_info'], crop_margin=args['margin'])
-test_set = AgeData(test_split_pair, is_train=False, normal_aug=args['test_preprocess'], test_time_aug=args['test_time_augmentation'], num_classes=args['num_classes'], img_size=args['img_size'], mode=args['test_time_mode'], crop_info=args['data_file_info'], crop_margin=args['margin'])
+test_set = AgeData(test_split_pair, is_train=False, normal_aug=args['test_preprocess'], test_time_aug=None, num_classes=args['num_classes'], img_size=args['img_size'], crop_info=args['data_file_info'], crop_margin=args['margin'])
 
 train_loader = DataLoader(train_set, batch_size=args['batch_size'], shuffle=True, num_workers=args['num_workers'])
 test_loader = DataLoader(test_set, batch_size=args['batch_size']*2, num_workers=args['num_workers'])
@@ -76,15 +74,8 @@ if args['snap_model']:
         for i, (X, y) in enumerate(test_loader):
             y = y.to(DEVICE)
 
-            if args['test_time_mode'] == 'normal':
-                X = X.to(DEVICE).float()
-                pred_value = torch.sum(torch.sigmoid(model(X)) > 0.5, dim=1) + 1 
-            else:
-                out_value = torch.zeros((X[0].size()[0], args['num_classes']-1)).to(DEVICE)
-                for f in X:
-                    f = f.to(DEVICE).float()
-                    out_value += torch.sigmoid(model(f))
-                pred_value = torch.sum((out_value / len(X)) > 0.5, dim=1) + 1
+            X = X.to(DEVICE).float()
+            pred_value = torch.sum(torch.sigmoid(model(X)) > 0.5, dim=1) + 1
             if args['cuda'] == True:
                 torch.cuda.empty_cache()
 
@@ -120,15 +111,8 @@ for epk in range(args['epoch']):
         pred_label = np.zeros(len(test_set))
         for i, (X, y) in enumerate(test_loader):
             y = y.to(DEVICE)
-            if args['test_time_mode'] == 'normal':
-                X = X.to(DEVICE).float()
-                pred_value = torch.sum(torch.sigmoid(model(X)) > 0.5, dim=1) + 1 
-            else:
-                out_value = torch.zeros((X[0].size()[0], args['num_classes']-1)).to(DEVICE)
-                for f in X:
-                    f = f.to(DEVICE).float()
-                    out_value += torch.sigmoid(model(f))
-                pred_value = torch.sum((out_value / len(X)) > 0.5, dim=1) + 1
+            X = X.to(DEVICE).float()
+            pred_value = torch.sum(torch.sigmoid(model(X)) > 0.5, dim=1) + 1
             if args['cuda'] == True:
                 torch.cuda.empty_cache()
 

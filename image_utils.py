@@ -1,3 +1,4 @@
+import copy
 import json
 import random
 import numpy as np
@@ -107,7 +108,7 @@ class SplitDataset(object):
 
 class AgeData(Dataset):
 
-    def __init__(self, data_pair, is_train, img_size, num_classes, normal_aug=None, test_time_aug=None, mode='normal', crop_info="", crop_margin=0):
+    def __init__(self, data_pair, is_train, img_size, num_classes, normal_aug=None, test_time_aug=None, mode=-1, crop_info="", crop_margin=0):
         self.img_paths = data_pair[0]
         self.labels = data_pair[1]
         self.max_age = num_classes
@@ -130,18 +131,17 @@ class AgeData(Dataset):
             img = augmentation_dict[func](img, self.normal_aug[func])
         if self.is_train ==  False:
             ori_img = cv2.resize(img, (self.img_size, self.img_size))
-            if self.mode == 'normal':
+            if self.mode < 2:
                 return torch.from_numpy(np.transpose(ori_img, (2, 0, 1)) / 255.0), self.labels[idx]
-            elif self.mode == 'tta':
-                tta_list = []
-                tta_list.append(torch.from_numpy(np.transpose(ori_img, (2, 0, 1)) / 255.0))
-                for func in self.test_time_aug.keys():
-                    aug_img = augmentation_dict[func](img, self.test_time_aug[func])
-                    aug_img = cv2.resize(aug_img, (self.img_size, self.img_size))
-                    tta_list.append(torch.from_numpy(np.transpose(aug_img, (2, 0, 1)) / 255.0))
-                return tta_list, self.labels[idx]
             else:
-                raise KeyError
+                tta_list = []
+                for turn in range(self.mode):
+                    aug_img = copy.deepcopy(ori_img)
+                    for func in self.test_time_aug.keys():
+                        aug_img = augmentation_dict[func](aug_img, self.test_time_aug[func])
+                    aug_img = np.transpose(aug_img, (2, 0, 1)) / 255.0
+                    tta_list.append(aug_img)
+                return tta_list, self.labels[idx]
         else:
             img = cv2.resize(img, (self.img_size, self.img_size))
             label =  [1] * (self.labels[idx] - 1) + [0] * (self.max_age - self.labels[idx])
