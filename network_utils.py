@@ -30,16 +30,17 @@ class StnModule(nn.Module):
         super(StnModule, self).__init__()
         self.img_size = img_size
         self.fc = nn.Sequential(
-            nn.Linear(in_features=img_size*img_size*3, out_features=20),
-            nn.Tanh(),
+            nn.Linear(in_features=img_size*img_size*3, out_features=1000),
             nn.Dropout(0.5),
+            nn.ReLU(True),
+            nn.Linear(in_features=1000, out_features=20),
+            nn.ReLU(True),
             nn.Linear(in_features=20, out_features=6),
-            nn.Tanh(),
         )
         bias = torch.Tensor([1, 0, 0, 0, 1, 0])
 
-        nn.init.constant_(self.fc[3].weight, 0)
-        self.fc[3].bias.data.copy_(bias)
+        nn.init.constant_(self.fc[5].weight, 0)
+        self.fc[5].bias.data.copy_(bias)
 
     def forward(self, img):
         batch_size = img.size(0)

@@ -20,7 +20,7 @@ torch.backends.cudnn.benchmark = True
 ##################################################
 # Parameters convert
 ##################################################
-f = open('parameters.yml', 'r')
+f = open(sys.argv[1], 'r')
 args = yaml.safe_load(f.read())
 f.close()
 
