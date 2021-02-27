@@ -10,15 +10,20 @@ from PIL import Image, ImageEnhance
 
 class ImageCroper(object):
 
-    def __init__(self, img_info, margin_rate):
+    def __init__(self, img_info, margin_rate, total_img_list):
         f = open(img_info, 'r')
-        self.img_info_dict = json.load(f)
+        img_info_dict = json.load(f)
         f.close()
         self.margin_rate = margin_rate
+        self.img_bboxes = np.zeros((len(total_img_list), 4))
+        pos = 0
+        for k in total_img_list:
+            self.img_bboxes[pos] = img_info_dict[k][0]['bbox']
+            pos += 1
 
-    def crop_image(self, src_img, src_img_path):
+    def crop_image(self, src_img, src_img_idx):
 
-        bbox = self.img_info_dict[src_img_path][0]['bbox']
+        bbox = self.img_bboxes[src_img_idx]
         height, weight = src_img.shape[0], src_img.shape[1]
         x_margin = (bbox[2] - bbox[0]) * self.margin_rate
         y_margin = (bbox[3] - bbox[1]) * self.margin_rate
@@ -78,6 +83,7 @@ augmentation_dict = {'resize': Resize,
                      'random_rotate': RandomRotate}
 
 class SplitDataset(object):
+
     def __init__(self, df_file_list):
         self.fit(df_file_list)
 
@@ -120,15 +126,17 @@ class AgeData(Dataset):
         self.mode = mode
         self.crop_info = crop_info
         if crop_info != "":
-            self.img_croper = ImageCroper(crop_info, crop_margin)
+            self.img_croper = ImageCroper(crop_info, crop_margin, self.img_paths)
 
     def __getitem__(self, idx):
+
         img_path = self.img_paths[idx]
         img = cv2.imread(img_path)
         if self.crop_info != "":
-            img = self.img_croper.crop_image(img, img_path)
-        for func in self.normal_aug.keys():
-            img = augmentation_dict[func](img, self.normal_aug[func])
+            img = self.img_croper.crop_image(img, idx)
+        if self.normal_aug != None:
+            for func in self.normal_aug.keys():
+                img = augmentation_dict[func](img, self.normal_aug[func])
         if self.is_train ==  False:
             ori_img = cv2.resize(img, (self.img_size, self.img_size))
             if self.mode < 2:

@@ -44,7 +44,9 @@ class StnModule(nn.Module):
 
     def forward(self, img):
         batch_size = img.size(0)
-        theta = self.fc(img.view(batch_size, -1)).view(batch_size, 2, 3)
+        theta = self.fc(img.view(batch_size, -1))
+        theta[:, [0, 1, 3, 4]] = F.tanh(theta[:, [0, 1, 3, 4]])
+        theta = theta.view(batch_size, 2, 3)
 
         grid = F.affine_grid(theta, torch.Size((batch_size, 3, self.img_size, self.img_size)))
         img_transform = F.grid_sample(img, grid)
