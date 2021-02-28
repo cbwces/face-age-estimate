@@ -30,9 +30,9 @@ else:
     DEVICE = 'cpu'
 
 spliter = SplitDataset(args['data_file'])
-train_split_pair, test_split_pair = spliter.transform(shuffle=True, test_size=args['test_size'], stratify=False)
-train_set = AgeData(train_split_pair, is_train=True, normal_aug=args['train_augmentation'], num_classes=args['num_classes'], img_size=args['img_size'], crop_info=args['data_file_info'], crop_margin=args['margin'])
-test_set = AgeData(test_split_pair, is_train=False, normal_aug=args['test_preprocess'], test_time_aug=None, num_classes=args['num_classes'], img_size=args['img_size'], crop_info=args['data_file_info'], crop_margin=args['margin'])
+train_split_pair, test_split_pair = spliter.transform(shuffle=True, test_size=args['test_size'], stratify=True)
+train_set = AgeData(train_split_pair, is_train=True, normal_aug=args['train_augmentation'], num_classes=args['num_classes'], img_size=args['img_size'], crop_info=args['data_file_info'], crop_margin=args['margin'], is_affine=args['affine'])
+test_set = AgeData(test_split_pair, is_train=False, normal_aug=args['test_preprocess'], test_time_aug=None, num_classes=args['num_classes'], img_size=args['img_size'], crop_info=args['data_file_info'], crop_margin=args['margin'], is_affine=args['affine'])
 
 train_loader = DataLoader(train_set, batch_size=args['batch_size'], shuffle=True, num_workers=args['num_workers'])
 test_loader = DataLoader(test_set, batch_size=args['batch_size']*2, num_workers=args['num_workers'])
