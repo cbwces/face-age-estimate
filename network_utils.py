@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from efficientnet_pytorch import EfficientNet
 
 class NormCost(object):
 
@@ -52,4 +53,20 @@ class StnModule(nn.Module):
         img_transform = F.grid_sample(img, grid)
 
         return img_transform
+
+class MainModel(nn.Module):
+
+    def __init__(self, num_classes, pretrain=False):
+        super(MainModel, self).__init__()
+        if pretrain == True:
+            self.model = EfficientNet.from_pretrained('efficientnet-b4')
+        else:
+            self.model = EfficientNet.from_name('efficientnet-b4')
+        self.model._fc = nn.Linear(self.model._fc.in_features, num_classes-1, bias=False)
+        self.last_bias = nn.Parameter(torch.zeros(num_classes-1).float())
+
+    def forward(self, x):
+        x = self.model(x)
+        x = x + self.last_bias
+        return x
 

@@ -1,27 +1,28 @@
 data_file: /home/cbw233/datasets/age/total_img_list_train.txt # file that include paths of all images with label
 data_file_info: /home/cbw233/datasets/age/total_crop_info.json # file that storage all detect info
 margin: 0.15
-img_size: 150 # image size to be into model
+img_size: 224 # image size to be into model
 num_classes: 90 # age classes
 num_workers: 6
 test_size: 0.2
-batch_size: 32
+batch_size: 128
 cuda: true
-pretrain: false
+pretrain: true
 lr: 0.0001
 epoch: 30
-loss: focal # ['normal', 'focal']
-early_stop: 2 # -1 to disable
-patience: 1 # -1 to disable scheduler
-snap_model: # if set, will recover from snap model
+loss: normal # ['normal', 'focal']
+early_stop: 3 # -1 to disable
+patience: 2 # -1 to disable scheduler
+save_dir: ./save_dir
+snap: false # if true, will recover from snap model
 train_augmentation: # ['resize', 'center_crop', 'random_flip', 'random_crop', 'random_jit', 'random_rotate']
   random_flip: 0.5
-  random_jit: [[0.5, 2], [0.2, 2], [0.2, 2]]
+  random_jit: [[0.5, 3], [0.5, 3], [0.5, 3]]
   random_rotate: [-10, 10]
 test_preprocess: # ['resize', 'center_crop', 'random_flip', 'random_crop', 'random_jit', 'random_rotate']
 test_time_augmentation:  # ['resize', 'center_crop', 'random_flip', 'random_crop', 'random_jit', 'random_rotate']
   random_flip: 0.5
-  random_jit: [[0.2, 2], [0.2, 2], [0.2, 2]]
+  random_jit: [[0.5, 3], [0.5, 3], [0.5, 3]]
   random_rotate: [-10, 10]
 affine: true
 stn: false # whether use stn block

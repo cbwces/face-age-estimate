@@ -1,3 +1,4 @@
+import os
 import copy
 import random
 import numpy as np
@@ -81,6 +82,29 @@ class SplitDataset(object):
                 train_X, test_X, train_y, test_y = train_test_split(self.img_paths, self.img_labels, shuffle=shuffle, train_size=train_size, random_state=42)
 
         return (train_X, train_y), (test_X, test_y)
+
+def save_split_to_file(train_tuple, valid_tuple, file_path='.'):
+    with open(os.path.join(file_path, 'train_split_file.txt'), 'w') as f:
+        for (img_path, label) in train_tuple:
+            f.write(img_path + " " + str(label) + "\n")
+    with open(os.path.join(file_path, 'valid_split_file.txt'), 'w') as f:
+        for (img_path, label) in valid_tuple:
+            f.write(img_path + " " + str(label) + "\n")
+
+def load_split_from_file(file_path='.'):
+    train_path_list = []
+    train_label_list = []
+    valid_path_list = []
+    valid_label_list = []
+    with open(os.path.join(file_path, 'train_split_file.txt'), 'r') as f:
+        for line in f.read().strip().split("\n"):
+            train_path_list.append(line.split(" ")[0])
+            train_label_list.append(int(line.split(" ")[1]))
+    with open(os.path.join(file_path, 'valid_split_file.txt'), 'r') as f:
+        for line in f.read().strip().split("\n"):
+            valid_path_list.append(line.split(" ")[0])
+            valid_label_list.append(int(line.split(" ")[1]))
+    return (train_path_list, train_label_list), (valid_path_list, valid_label_list)
 
 class AgeData(Dataset):
 
