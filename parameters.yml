@@ -1,20 +1,21 @@
 data_file: /home/cbw233/datasets/age/total_img_list_train.txt # file that include paths of all images with label
 data_file_info: /home/cbw233/datasets/age/total_crop_info.json # file that storage all detect info
+tensorboard: false # if using tensorboard to record
 margin: 0.15
-img_size: 224 # image size to be into model
+img_size: 160 # image size to be into model
 num_classes: 90 # age classes
 num_workers: 6
 test_size: 0.2
-batch_size: 128
+batch_size: 32
 cuda: true
-pretrain: true
+pretrain: false
 lr: 0.0001
 epoch: 30
 loss: normal # ['normal', 'focal']
 early_stop: 3 # -1 to disable
 patience: 2 # -1 to disable scheduler
 save_dir: ./save_dir
-snap: false # if true, will recover from snap model
+snap: true # if true, will recover from snap model
 train_augmentation: # ['resize', 'center_crop', 'random_flip', 'random_crop', 'random_jit', 'random_rotate']
   random_flip: 0.5
   random_jit: [[0.5, 3], [0.5, 3], [0.5, 3]]

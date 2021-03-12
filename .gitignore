@@ -1,3 +1,9 @@
 __pycache__
 *.pth
 save_dir
+build
+src
+compile_commands.json
+.clang_complete
+*cache*
+CMakeLists.txt

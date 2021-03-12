@@ -2,12 +2,11 @@ import os
 import gc
 import sys
 import yaml
+import numpy as np
 import torch
 from torch import nn as nn
 from torch.nn import functional as F
-import numpy as np
 from torch.utils.data import DataLoader
-
 from sklearn.metrics import mean_absolute_error
 from image_utils import AgeData, SplitDataset, save_split_to_file, load_split_from_file
 from network_utils import NormCost, StnModule, MainModel
@@ -15,9 +14,11 @@ from network_utils import NormCost, StnModule, MainModel
 f = open(sys.argv[1], 'r')
 args = yaml.safe_load(f.read())
 f.close()
-
 if not os.path.exists(args['save_dir']):
     os.mkdir(args['save_dir'])
+if args['tensorboard'] == True:
+    from torch.utils.tensorboard import SummaryWriter
+    writer = SummaryWriter(log_dir=os.path.join(args['save_dir'], 'tensorboard'))
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = True
 if args['cuda'] == True:
@@ -45,6 +46,8 @@ args['pretrain'] = False
 loss_cal = NormCost(args['loss'])
 
 model = model.to(DEVICE)
+if args['tensorboard'] == True:
+    writer.add_graph(model, torch.unsqueeze(train_set[0][0], dim=0).to(DEVICE).float(), 0)
 if args['snap'] == True:
     model.load_state_dict(torch.load(os.path.join(args['save_dir'], 'age_model.pth')))
 optimation = torch.optim.Adam(model.parameters(), lr=args['lr'], weight_decay=0.00001)
@@ -124,6 +127,12 @@ for epk in range(EPOCH):
         if args['early_stop'] != -1:
             if num_no_boost >= args['early_stop']:
                 break
+    if args['tensorboard'] == True:
+        writer.add_scalar('test/mae', mae, epk)
+        writer.add_scalar('stage/lr', args['lr'], epk)
 
     print("current MAE:", mae, "| best MAE:", best_mae)
+
+if args['tensorboard'] == True:
+    writer.close()
 
