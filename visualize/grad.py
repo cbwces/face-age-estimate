@@ -9,8 +9,8 @@ class VanillaGrad(object):
 
     def __init__(self, pretrained_model, cuda=False):
         self.pretrained_model = pretrained_model
-        # self.features = pretrained_model.features
         self.cuda = cuda
+        self.features = pretrained_model.children()
 
     def __call__(self, x, index=None):
         output = self.pretrained_model(x)
@@ -47,6 +47,7 @@ class SmoothGrad(VanillaGrad):
         self.stdev_spread = stdev_spread
         self.n_samples = n_samples
         self.magnitutde = magnitude
+        self.features = pretrained_model.children()
 
     def __call__(self, x, index=None):
         x = x.data.cpu().numpy()
@@ -87,6 +88,59 @@ class SmoothGrad(VanillaGrad):
         avg_gradients = total_gradients[0, :, :, :] / self.n_samples
 
         return avg_gradients
+
+class GuidedBackpropReLU(torch.autograd.Function):
+
+    def __init__(self, inplace=False):
+        super(GuidedBackpropReLU, self).__init__()
+        self.inplace = inplace
+
+    def forward(self, input):
+        pos_mask = (input > 0).type_as(input)
+        output = torch.addcmul(
+            torch.zeros(input.size()).type_as(input),
+            input,
+            pos_mask)
+        self.save_for_backward(input, output)
+        return output
+
+    def backward(self, grad_output):
+        input, output = self.saved_tensors
+
+        pos_mask_1 = (input > 0).type_as(grad_output)
+        pos_mask_2 = (grad_output > 0).type_as(grad_output)
+        grad_input = torch.addcmul(
+            torch.zeros(input.size()).type_as(input),
+            torch.addcmul(
+                torch.zeros(input.size()).type_as(input), grad_output, pos_mask_1),
+                pos_mask_2)
+
+        return grad_input
+
+    def __repr__(self):
+        inplace_str = ', inplace' if self.inplace else ''
+        return self.__class__.__name__ + ' (' \
+            + inplace_str + ')'
+
+
+class GuidedBackpropGrad(VanillaGrad):
+
+    def __init__(self, pretrained_model, cuda=False):
+        super(GuidedBackpropGrad, self).__init__(pretrained_model, cuda)
+        for idx, module in enumerate(self.features):
+            if module.__class__.__name__ == 'ReLU':
+                self.features[idx] = GuidedBackpropReLU()
+
+
+class GuidedBackpropSmoothGrad(SmoothGrad):
+
+    def __init__(self, pretrained_model, cuda=False, stdev_spread=.15, n_samples=25, magnitude=True):
+        super(GuidedBackpropSmoothGrad, self).__init__(
+            pretrained_model, cuda, stdev_spread, n_samples, magnitude)
+        for idx, module in enumerate(self.features):
+            if module.__class__.__name__ == 'ReLU':
+                self.features[idx] = GuidedBackpropReLU()
+
 
 def save_as_gray_image(img, origin_img, filename, percentile=99):
     img_2d = np.sum(img, axis=0)

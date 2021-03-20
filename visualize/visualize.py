@@ -10,7 +10,7 @@ from torch.nn import functional as F
 import numpy as np
 
 sys.path.append('/home/cbw233/python/bench_test/')
-from grad import SmoothGrad, save_as_gray_image
+from grad import GuidedBackpropSmoothGrad, save_as_gray_image
 from network_utils import StnModule, MainModel
 from image_utils import *
 from image_croper import ImageCropper
@@ -54,7 +54,7 @@ else:
 model = model.to(DEVICE)
 model.load_state_dict(torch.load(os.path.join(args['save_dir'], 'age_model.pth')))
 model.eval()
-sm = SmoothGrad(model, cuda=args['cuda'])
+sm = GuidedBackpropSmoothGrad(model, cuda=args['cuda'])
 img = img.to(DEVICE).float()
 G = sm(img)
 
