@@ -16,9 +16,6 @@ args = yaml.safe_load(f.read())
 f.close()
 if not os.path.exists(args['save_dir']):
     os.mkdir(args['save_dir'])
-if args['tensorboard'] == True:
-    from torch.utils.tensorboard import SummaryWriter
-    writer = SummaryWriter(log_dir=os.path.join(args['save_dir'], 'tensorboard'))
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = True
 if args['cuda'] == True:
@@ -45,9 +42,7 @@ args['pretrain'] = False
 
 loss_cal = NormCost(args['loss'])
 
-model = model.to(DEVICE)
-if args['tensorboard'] == True:
-    writer.add_graph(model, torch.unsqueeze(train_set[0][0], dim=0).to(DEVICE).float(), 0)
+# model = model.to(DEVICE)
 if args['snap'] == True:
     model.load_state_dict(torch.load(os.path.join(args['save_dir'], 'age_model.pth')))
 optimation = torch.optim.Adam(model.parameters(), lr=args['lr'], weight_decay=0.00001)
@@ -58,7 +53,6 @@ if args['patience'] != -1:
 # model train and test
 ##################################################
 best_mae = 100.0
-num_no_boost = 0
 
 if args['snap'] == True:
     model.eval()
@@ -77,9 +71,12 @@ if args['snap'] == True:
             pred_label[i*args['batch_size']*2:(i+1)*args['batch_size']*2] = pred_value.to('cpu').numpy()
     mae = mean_absolute_error(correct_label, pred_label)
     best_mae = mae
-    scheduler.step(mae)
+    scheduler.num_bad_epochs = args['num_no_boost']
 
     print("restart from MAE:", mae)
+else:
+    args['num_no_boost'] = 0
+
 
 EPOCH = args['epoch']
 for epk in range(EPOCH):
@@ -121,18 +118,12 @@ for epk in range(EPOCH):
     if mae < best_mae:
         best_mae = mae
         torch.save(model.state_dict(), os.path.join(args['save_dir'], 'age_model.pth'))
-        num_no_boost = 0
+        args['num_no_boost'] = 0
     else:
-        num_no_boost += 1
+        args['num_no_boost'] += 1
         if args['early_stop'] != -1:
-            if num_no_boost >= args['early_stop']:
+            if args['num_no_boost'] >= args['early_stop']:
                 break
-    if args['tensorboard'] == True:
-        writer.add_scalar('test/mae', mae, epk)
-        writer.add_scalar('stage/lr', args['lr'], epk)
 
     print("current MAE:", mae, "| best MAE:", best_mae)
-
-if args['tensorboard'] == True:
-    writer.close()
 

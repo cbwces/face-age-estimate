@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from efficientnet_pytorch import EfficientNet
 
+
 class NormCost(object):
 
     def __init__(self, loss_kw, alpha=0.25, gamma=2):

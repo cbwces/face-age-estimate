@@ -7,3 +7,5 @@ compile_commands.json
 .clang_complete
 *cache*
 CMakeLists.txt
+*/*.png
+*/*.jpg

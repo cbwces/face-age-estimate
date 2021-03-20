@@ -1,0 +1,11 @@
+affine: true
+cuda: true
+
+data_file_info: /home/cbw233/datasets/age/total_crop_info.json
+img_size: 160
+margin: 0.15
+num_classes: 90
+save_dir: ./save_dir
+stn: false
+test_preprocess: null
+visualize_path: ./visualize/
