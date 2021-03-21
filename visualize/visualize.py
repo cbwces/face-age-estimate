@@ -46,10 +46,10 @@ img = torch.from_numpy(np.transpose(img, (2, 0, 1)) / 255.0)
 img = torch.unsqueeze(img, dim=0)
 
 if args['stn'] == True:
-    stem_model = MainModel(args['num_classes'])
+    stem_model = MainModel(args['backbone'], args['num_classes'])
     model = nn.Sequential(StnModule(img_size=args['img_size']), stem_model)
 else:
-    model = MainModel(args['num_classes'])
+    model = MainModel(args['backbone'], args['num_classes'])
 
 model = model.to(DEVICE)
 model.load_state_dict(torch.load(os.path.join(args['save_dir'], 'age_model.pth')))

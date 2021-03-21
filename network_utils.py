@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from efficientnet_pytorch import EfficientNet
+import torchvision
 
 
 class NormCost(object):
@@ -57,17 +58,23 @@ class StnModule(nn.Module):
 
 class MainModel(nn.Module):
 
-    def __init__(self, num_classes, pretrain=False):
+    def __init__(self, backbone, num_classes, pretrain=False):
         super(MainModel, self).__init__()
-        if pretrain == True:
-            self.model = EfficientNet.from_pretrained('efficientnet-b4')
-        else:
-            self.model = EfficientNet.from_name('efficientnet-b4')
-        self.model._fc = nn.Linear(self.model._fc.in_features, num_classes-1, bias=False)
-        self.last_bias = nn.Parameter(torch.zeros(num_classes-1).float())
+        if backbone == 'E':
+            if pretrain == True:
+                self.model = EfficientNet.from_pretrained('efficientnet-b4')
+            else:
+                self.model = EfficientNet.from_name('efficientnet-b4')
+            # self.model._fc = nn.Linear(self.model._fc.in_features, num_classes-1, bias=False)
+            self.model._fc = nn.Linear(self.model._fc.in_features, num_classes-1)
+        else if backbone == 'R':
+            if pretrain == True:
+                self.model = torchvision.models.resnet101(pretrained=True, num_classes=num_classes-1)
+            else:
+                self.model = torchvision.models.resnet101(num_classes=num_classes-1)
 
     def forward(self, x):
         x = self.model(x)
-        x = x + self.last_bias
+        # x = x + self.last_bias
         return x
 

@@ -34,10 +34,10 @@ test_set = AgeData(test_split_pair, is_train=False, normal_aug=args['test_prepro
 train_loader = DataLoader(train_set, batch_size=args['batch_size'], shuffle=True, num_workers=args['num_workers'])
 test_loader = DataLoader(test_set, batch_size=args['batch_size']*2, num_workers=args['num_workers'])
 if args['stn'] == True:
-    stem_model = MainModel(args['num_classes'], args['pretrain'])
+    stem_model = MainModel(args['backbone'], args['num_classes'], args['pretrain'])
     model = nn.Sequential(StnModule(img_size=args['img_size']), stem_model)
 else:
-    model = MainModel(args['num_classes'], args['pretrain'])
+    model = MainModel(args['backbone'], args['num_classes'], args['pretrain'])
 args['pretrain'] = False
 
 loss_cal = NormCost(args['loss'])
