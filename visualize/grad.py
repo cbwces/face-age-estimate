@@ -128,7 +128,7 @@ class GuidedBackpropGrad(VanillaGrad):
     def __init__(self, pretrained_model, cuda=False):
         super(GuidedBackpropGrad, self).__init__(pretrained_model, cuda)
         for idx, module in enumerate(self.features):
-            if module.__class__.__name__ == 'ReLU':
+            if ('relu' in module.__class__.__name__.lower()) or ('swith' in module.__class__.__name__.lower()):
                 self.features[idx] = GuidedBackpropReLU()
 
 
@@ -138,7 +138,7 @@ class GuidedBackpropSmoothGrad(SmoothGrad):
         super(GuidedBackpropSmoothGrad, self).__init__(
             pretrained_model, cuda, stdev_spread, n_samples, magnitude)
         for idx, module in enumerate(self.features):
-            if module.__class__.__name__ == 'ReLU':
+            if ('relu' in module.__class__.__name__.lower()) or ('swith' in module.__class__.__name__.lower()):
                 self.features[idx] = GuidedBackpropReLU()
 
 

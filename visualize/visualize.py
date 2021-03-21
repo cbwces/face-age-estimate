@@ -9,7 +9,7 @@ from torch import nn as nn
 from torch.nn import functional as F
 import numpy as np
 
-sys.path.append('/home/cbw233/python/bench_test/')
+sys.path.append('/home/cbw233/python/age_estimate/')
 from grad import GuidedBackpropSmoothGrad, save_as_gray_image
 from network_utils import StnModule, MainModel
 from image_utils import *
