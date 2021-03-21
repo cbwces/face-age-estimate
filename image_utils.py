@@ -85,10 +85,10 @@ class SplitDataset(object):
 
 def save_split_to_file(train_tuple, valid_tuple, file_path='.'):
     with open(os.path.join(file_path, 'train_split_file.txt'), 'w') as f:
-        for (img_path, label) in train_tuple:
+        for (img_path, label) in zip(train_tuple[0], train_tuple[1]):
             f.write(img_path + " " + str(label) + "\n")
     with open(os.path.join(file_path, 'valid_split_file.txt'), 'w') as f:
-        for (img_path, label) in valid_tuple:
+        for (img_path, label) in zip(valid_tuple[0], valid_tuple[1]):
             f.write(img_path + " " + str(label) + "\n")
 
 def load_split_from_file(file_path='.'):
