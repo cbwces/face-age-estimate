@@ -7,6 +7,7 @@ margin: 0.15
 num_classes: 90
 save_dir: ./save_dir
 stn: false
+backbone: E
 test_preprocess: null
 tta_mode: -1
 test_time_augmentation:
