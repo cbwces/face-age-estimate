@@ -1,4 +1,4 @@
-# face-age-estimator
+# face-age-estimate
 implement human age train and predict
 using method based on [Rank consistent ordinal regression for neural networks with application to age estimation](https://arxiv.org/pdf/1901.07884v7.pdf)
 and implement label salient visualize using [smooth grad](https://arxiv.org/pdf/1706.03825.pdf) and [guided backpropagation](https://arxiv.org/pdf/1412.6806.pdf)
