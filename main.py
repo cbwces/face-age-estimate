@@ -76,7 +76,7 @@ if args['snap'] == True:
     print("restart from MAE:", mae)
 else:
     args['num_no_boost'] = 0
-
+args['snap'] = True
 
 EPOCH = args['epoch']
 for epk in range(EPOCH):

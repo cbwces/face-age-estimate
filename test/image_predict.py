@@ -6,6 +6,7 @@ from torch import nn as nn
 from torch.nn import functional as F
 import numpy as np
 from torch.utils.data import DataLoader
+sys.path.append('/home/cbw233/python/age_estimate/')
 from image_utils import AgeData
 from network_utils import StnModule, MainModel
 
@@ -45,6 +46,10 @@ model.load_state_dict(torch.load(os.path.join(args['save_dir'], 'age_model.pth')
 model.eval()
 if args['tta_mode'] >= 2:
     pred_value_chunk = torch.zeros((args['tta_mode'], args['num_classes']-1)).to(DEVICE)
+
+start = torch.cuda.Event(enable_timing=True)
+end = torch.cuda.Event(enable_timing=True)
+start.record()
 with torch.no_grad():
     for i, (X, y) in enumerate(test_loader):
         y = y.to(DEVICE)
@@ -62,3 +67,6 @@ with torch.no_grad():
             torch.cuda.empty_cache()
         print("img: " + test_set.img_paths[i])
         print("age: " + str(pred_value))
+end.record()
+torch.cuda.synchronize()
+print(start.elapsed_time(end))
