@@ -58,7 +58,7 @@ class StnModule(nn.Module):
 
 class MainModel(nn.Module):
 
-    def __init__(self, backbone, num_classes, pretrain=False):
+    def __init__(self, backbone, num_classes, pretrain=False, static=False):
         super(MainModel, self).__init__()
         self.backbone = backbone
         if backbone == 'E':
@@ -68,6 +68,8 @@ class MainModel(nn.Module):
                 self.model = EfficientNet.from_name('efficientnet-b4')
             self.model._fc = nn.Linear(self.model._fc.in_features, num_classes-1, bias=False)
             self.last_bias = nn.Parameter(torch.zeros(num_classes-1).float())
+            if static == True:
+                self.model.set_swish(memory_efficient=False)
 
         elif backbone == 'R':
             if pretrain == True:
