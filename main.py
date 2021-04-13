@@ -42,7 +42,7 @@ args['pretrain'] = False
 
 loss_cal = NormCost(args['loss'])
 
-# model = model.to(DEVICE)
+model = model.to(DEVICE)
 if args['snap'] == True:
     model.load_state_dict(torch.load(os.path.join(args['save_dir'], 'age_model.pth')))
 optimation = torch.optim.Adam(model.parameters(), lr=args['lr'], weight_decay=0.00001)
@@ -126,4 +126,3 @@ for epk in range(EPOCH):
                 break
 
     print("current MAE:", mae, "| best MAE:", best_mae)
-

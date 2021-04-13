@@ -65,8 +65,7 @@ with torch.no_grad():
             pred_value = pred_value.to('cpu').numpy()
         if args['cuda'] == True:
             torch.cuda.empty_cache()
-        print("img: " + test_set.img_paths[i])
-        print("age: " + str(pred_value))
+        print(str(pred_value))
 end.record()
 torch.cuda.synchronize()
 print(start.elapsed_time(end))

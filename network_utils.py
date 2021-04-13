@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from efficientnet_pytorch import EfficientNet
-import torchvision
 
 
 class NormCost(object):
@@ -62,22 +60,28 @@ class MainModel(nn.Module):
         super(MainModel, self).__init__()
         self.backbone = backbone
         if backbone == 'E':
+            from efficientnet_pytorch import EfficientNet
             if pretrain == True:
-                self.model = EfficientNet.from_pretrained('efficientnet-b4')
+                self.model = EfficientNet.from_pretrained('efficientnet-b5')
             else:
-                self.model = EfficientNet.from_name('efficientnet-b4')
+                self.model = EfficientNet.from_name('efficientnet-b5')
             self.model._fc = nn.Linear(self.model._fc.in_features, num_classes-1, bias=False)
             self.last_bias = nn.Parameter(torch.zeros(num_classes-1).float())
             if static == True:
                 self.model.set_swish(memory_efficient=False)
 
-        elif backbone == 'R':
-            if pretrain == True:
-                self.model = torchvision.models.resnet101(pretrained=True, num_classes=num_classes-1)
-            else:
-                self.model = torchvision.models.resnet101(num_classes=num_classes-1)
         else:
-            raise KeyError
+            if backbone == 'R':
+                import torchvision
+                if pretrain == True:
+                    self.model = torchvision.models.resnet101(pretrained=True, num_classes=num_classes-1)
+                else:
+                    self.model = torchvision.models.resnet101(num_classes=num_classes-1)
+            else:
+                if pretrain == True:
+                    self.model = torch.hub.load('pytorch/vision:v0.9.0', 'mobilenet_v2', pretrained=True, num_classes=num_classes-1)
+                else:
+                    self.model = torch.hub.load('pytorch/vision:v0.9.0', 'mobilenet_v2', pretrained=False, num_classes=num_classes-1)
 
     def forward(self, x):
         x = self.model(x)

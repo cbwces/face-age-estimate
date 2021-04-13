@@ -1,21 +1,21 @@
-data_file: ./data_for_train.txt # file that include paths of all images with label
-data_file_info: ./image_crop_info.json # file that storage all detect info
+data_file: /home/cbw233/datasets/age/train_face_with_label_sample.txt # file that include paths of all images with label
+data_file_info: /home/cbw233/datasets/age/all_face.json # file that storage all detect info
 margin: 0.15
 img_size: 160 # image size to be into model
-num_classes: 90 # age classes
+num_classes: 70 # age classes
 num_workers: 6
 test_size: 0.2
 batch_size: 32
 cuda: true
-backbone: E # "E" for efficientnet, "R" for resnet
+backbone: M # "E" for efficientnet, "R" for resnet, "M" for mobilenet
 pretrain: false
 lr: 0.0001
 epoch: 30
-loss: normal # ['normal', 'focal']
+loss: focal # ['normal', 'focal']
 early_stop: 3 # -1 to disable
 patience: 2 # -1 to disable scheduler
 save_dir: ./save_dir
-snap: true # if true, will recover from snap model
+snap: false # if true, will recover from snap model
 train_augmentation: # ['resize', 'center_crop', 'random_flip', 'random_crop', 'random_jit', 'random_rotate']
   random_flip: 0.5
   random_jit: [[0.5, 3], [0.5, 3], [0.5, 3]]
