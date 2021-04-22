@@ -25,14 +25,25 @@ else:
 test_line = []
 test_label = []
 f = open(args['data_file'], 'r')
-for line in f.read().strip().split('\n'):
-    test_line.append(line)
-    test_label.append(-1)
+if args['label'] == False:
+    for line in f.read().strip().split('\n'):
+        if len(line.split(" ")) > 1:
+            test_line.append(" ".join(line.split(" ")))
+        else:
+            test_line.append(line)
+        test_label.append(-1)
+else:
+    for line in f.read().strip().split('\n'):
+        if len(line.split(" ")) > 2:
+            test_line.append(" ".join(line.split(" ")[:-1]))
+        else:
+            test_line.append(line.split(" ")[0])
+        test_label.append(int(line.split(" ")[-1]))
 test_pair = (test_line, test_label)
 f.close()
 test_set = AgeData(test_pair, is_train=False, normal_aug=args['test_preprocess'], test_time_aug=args['test_time_augmentation'], img_size=args['img_size'], num_classes=args['num_classes'], mode=args['tta_mode'], crop_info=args['data_file_info'], crop_margin=args['margin'], is_affine=args['affine'])
 
-test_loader = DataLoader(test_set, batch_size=1)
+test_loader = DataLoader(test_set, batch_size=args['batch_size'])
 
 if args['stn'] == True:
     stem_model = MainModel(args['backbone'], args['num_classes'])
@@ -47,25 +58,21 @@ model.eval()
 if args['tta_mode'] >= 2:
     pred_value_chunk = torch.zeros((args['tta_mode'], args['num_classes']-1)).to(DEVICE)
 
-start = torch.cuda.Event(enable_timing=True)
-end = torch.cuda.Event(enable_timing=True)
-start.record()
+mae = 0
 with torch.no_grad():
     for i, (X, y) in enumerate(test_loader):
-        y = y.to(DEVICE)
+        y = y.numpy()
         if args['tta_mode'] < 2:
             X = X.to(DEVICE).float()
             pred_value = torch.sum(torch.sigmoid(model(X)) > 0.5, dim=1) + 1
-            pred_value = pred_value.to('cpu').numpy()[0]
+            pred_value = pred_value.to('cpu').numpy()
         else:
             for no_aug_img, aug_X in enumerate(X):
                 aug_X = aug_X.to(DEVICE).float()
                 pred_value_chunk[no_aug_img] = torch.sigmoid(model(aug_X))
             pred_value = torch.sum((torch.sum(pred_value_chunk, dim=0) / args['tta_mode']) > 0.5, dim=0) + 1
             pred_value = pred_value.to('cpu').numpy()
+        mae += np.sum(np.abs(y - pred_value))
         if args['cuda'] == True:
             torch.cuda.empty_cache()
-        print(str(pred_value))
-end.record()
-torch.cuda.synchronize()
-print(start.elapsed_time(end))
+    print("MAE: ", mae / len(test_pair[1]))

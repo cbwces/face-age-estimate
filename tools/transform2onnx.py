@@ -1,9 +1,12 @@
+
+import sys
 import yaml
 import argparse
 import torch
 from torch import nn as nn
 
-from network_utils import StnModule, MainModel
+sys.path.append('../')
+from network_utils import MainModel, StnModule
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-n', '--num_classes', type=int, help='number of classes of output')
@@ -30,4 +33,4 @@ model.eval()
 with torch.no_grad():
     out = model(toy_data)
 
-torch.onnx.export(model, toy_data, args.output, input_names=['input'], output_names=['output'], dynamic_axes={'input': {0: 'batch_szie'}, 'output': {0: 'batch_size'}})
+torch.onnx.export(model, toy_data, args.output, input_names=['input'], output_names=['output'])

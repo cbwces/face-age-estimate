@@ -1,3 +1,8 @@
+'''
+@author: cbwces
+@github: https://github.com/cbwces
+@contact: sknyqbcbw@gmail.com
+'''
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -71,17 +76,20 @@ class MainModel(nn.Module):
                 self.model.set_swish(memory_efficient=False)
 
         else:
+            import torchvision
             if backbone == 'R':
-                import torchvision
                 if pretrain == True:
                     self.model = torchvision.models.resnet101(pretrained=True, num_classes=num_classes-1)
                 else:
                     self.model = torchvision.models.resnet101(num_classes=num_classes-1)
             else:
+                from mobilenet_v3 import mobilenetv3_large
+                self.model = mobilenetv3_large(num_classes=num_classes-1)
                 if pretrain == True:
-                    self.model = torch.hub.load('pytorch/vision:v0.9.0', 'mobilenet_v2', pretrained=True, num_classes=num_classes-1)
-                else:
-                    self.model = torch.hub.load('pytorch/vision:v0.9.0', 'mobilenet_v2', pretrained=False, num_classes=num_classes-1)
+                    self.model.load_state_dict(torch.load('pretrained/mobilenetv3-large-1cd25616.pth'))
+                    # self.model = torchvision.models.mobilenet_v2(num_classes=num_classes-1, pretrained=True)
+                # else:
+                    # self.model = torchvision.models.mobilenet_v2(num_classes=num_classes-1, pretrained=False)
 
     def forward(self, x):
         x = self.model(x)

@@ -1,13 +1,16 @@
 affine: true
 cuda: true
-data_file: ./data_for_test.txt
-data_file_info: ./image_crop_info.json
+data_file: test_face_with_label.txt
+data_file_info: all_face.json
 img_size: 160
 margin: 0.15
-num_classes: 90
-save_dir: ./save_dir
+label: true
+batch_size: 256
+num_classes: 70
+save_dir: ./save_dir/
 stn: false
-backbone: E
+backbone: M
+label: true
 test_preprocess: null
 tta_mode: -1
 test_time_augmentation:

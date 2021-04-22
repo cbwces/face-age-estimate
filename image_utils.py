@@ -1,3 +1,8 @@
+'''
+@author: cbwces
+@github: https://github.com/cbwces
+@contact: sknyqbcbw@gmail.com
+'''
 import os
 import copy
 import random
