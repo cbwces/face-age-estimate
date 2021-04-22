@@ -1,3 +1,8 @@
+'''
+@author: cbwces
+@github: https://github.com/cbwces
+@contact: sknyqbcbw@gmail.com
+'''
 import os
 import copy
 import random
@@ -63,8 +68,12 @@ class SplitDataset(object):
         self.img_labels = []
         f = open(df_file_list, 'r')
         for line in f.read().strip().split('\n'):
-            self.img_paths.append(line.split(' ')[0])
-            self.img_labels.append(int(line.split(' ')[1]))
+            if len(line.split(' ')) > 2:
+                self.img_paths.append(" ".join(line.split(' ')[:-1]))
+                self.img_labels.append(int(line.split(' ')[-1]))
+            else:
+                self.img_paths.append(line.split(' ')[0])
+                self.img_labels.append(int(line.split(' ')[1]))
         f.close()
 
     def transform(self, shuffle=False, test_size=None, train_size=None, stratify=True):

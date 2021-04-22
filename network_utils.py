@@ -1,8 +1,11 @@
+'''
+@author: cbwces
+@github: https://github.com/cbwces
+@contact: sknyqbcbw@gmail.com
+'''
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from efficientnet_pytorch import EfficientNet
-import torchvision
 
 
 class NormCost(object):
@@ -58,24 +61,35 @@ class StnModule(nn.Module):
 
 class MainModel(nn.Module):
 
-    def __init__(self, backbone, num_classes, pretrain=False):
+    def __init__(self, backbone, num_classes, pretrain=False, static=False):
         super(MainModel, self).__init__()
         self.backbone = backbone
         if backbone == 'E':
+            from efficientnet_pytorch import EfficientNet
             if pretrain == True:
-                self.model = EfficientNet.from_pretrained('efficientnet-b4')
+                self.model = EfficientNet.from_pretrained('efficientnet-b5')
             else:
-                self.model = EfficientNet.from_name('efficientnet-b4')
+                self.model = EfficientNet.from_name('efficientnet-b5')
             self.model._fc = nn.Linear(self.model._fc.in_features, num_classes-1, bias=False)
             self.last_bias = nn.Parameter(torch.zeros(num_classes-1).float())
+            if static == True:
+                self.model.set_swish(memory_efficient=False)
 
-        elif backbone == 'R':
-            if pretrain == True:
-                self.model = torchvision.models.resnet101(pretrained=True, num_classes=num_classes-1)
-            else:
-                self.model = torchvision.models.resnet101(num_classes=num_classes-1)
         else:
-            raise KeyError
+            import torchvision
+            if backbone == 'R':
+                if pretrain == True:
+                    self.model = torchvision.models.resnet101(pretrained=True, num_classes=num_classes-1)
+                else:
+                    self.model = torchvision.models.resnet101(num_classes=num_classes-1)
+            else:
+                from mobilenet_v3 import mobilenetv3_large
+                self.model = mobilenetv3_large(num_classes=num_classes-1)
+                if pretrain == True:
+                    self.model.load_state_dict(torch.load('pretrained/mobilenetv3-large-1cd25616.pth'))
+                    # self.model = torchvision.models.mobilenet_v2(num_classes=num_classes-1, pretrained=True)
+                # else:
+                    # self.model = torchvision.models.mobilenet_v2(num_classes=num_classes-1, pretrained=False)
 
     def forward(self, x):
         x = self.model(x)
