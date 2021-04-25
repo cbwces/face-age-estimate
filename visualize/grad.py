@@ -88,7 +88,6 @@ class SmoothGrad(VanillaGrad):
                 total_gradients += (grad * grad)
             else:
                 total_gradients += grad
-            #if self.visdom:
 
         avg_gradients = total_gradients[0, :, :, :] / self.n_samples
 
@@ -157,5 +156,4 @@ def save_as_gray_image(img, origin_img, filename, percentile=99):
     img_2d = cv2.cvtColor(img_2d, cv2.COLOR_GRAY2BGR)
     blend_img = np.concatenate([origin_img, img_2d], axis=1)
     cv2.imwrite(filename, blend_img)
-    # cv2.imwrite(filename, img_2d)
 

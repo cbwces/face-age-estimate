@@ -1,11 +1,11 @@
 affine: true
 cuda: true
-data_file_info: /home/cbw233/datasets/age/total_crop_info.json
+data_file_info: /home/cbw233/src/retinaface/build/tmp_info.json
 img_size: 160
 margin: 0.15
 backbone: E
-num_classes: 90
-save_dir: ./save_dir
+num_classes: 70
+model_path: ../save_dir/efficientnet_model.pth
 stn: false
 test_preprocess: null
-visualize_path: ./visualize/
+visualize_path: ./

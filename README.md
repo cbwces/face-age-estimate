@@ -5,7 +5,7 @@ and implement label salient visualize using [smooth grad](https://arxiv.org/pdf/
 
 ## usage
 ### pretrained model(optional)
-Here is a pretrained model of efficientnet-b5 based on a mix subset of [IMDB-WIKI](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/), [megaage](http://mmlab.ie.cuhk.edu.hk/projects/MegaAge/), [UTKFace](https://susanqq.github.io/UTKFace/), [AFAD](https://afad-dataset.github.io/), and [AAF](https://github.com/JingchunCheng/All-Age-Faces-Dataset), which can provide age predict from 1 to 90
+Here is a pretrained model of efficientnet-b5 based on a mix subset of [megaage](http://mmlab.ie.cuhk.edu.hk/projects/MegaAge/), [UTKFace](https://susanqq.github.io/UTKFace/), [AFAD](https://afad-dataset.github.io/), and [AAF](https://github.com/JingchunCheng/All-Age-Faces-Dataset), which can provide age predict from 1 to 70
 **Download:** 
 [Google Drive](https://drive.google.com/file/d/1uQXzXK8blsp8nNu5i7Dj9IcSyuTr9BcG/view?usp=sharing)
 [Baidu Netdisk](https://pan.baidu.com/s/1uZHZv8JXBzWqwPwYGEyU9Q) p4kt
@@ -31,6 +31,7 @@ python ./test/image_predict.py ./test/test_parameters.yml
 ```
 
 ### visualize
+first, get into folder **visualize**, then execute below command
 ```python
 python ./visualize/visualize.py ./visualize/visualize_parameters.yml {path of image you want to visualize}
 ```

@@ -14,8 +14,8 @@ from torch import nn as nn
 from torch.nn import functional as F
 import numpy as np
 
-sys.path.append('/home/cbw233/python/age_estimate/')
 from grad import GuidedBackpropSmoothGrad, save_as_gray_image
+sys.path.append('..')
 from network_utils import StnModule, MainModel
 from image_utils import *
 from image_croper import ImageCropper
@@ -37,10 +37,8 @@ f.close()
 img = cv2.imread(sys.argv[2])
 cropper = ImageCropper(args['data_file_info'], args['margin'], [sys.argv[2]], args['affine'], args['img_size'])
 if args['affine'] == False:
-    # img = cropper.crop_image(img, img_name_list.index(sys.argv[2]))
     img = cropper.crop_image(img, 0)
 else:
-    # img = cropper.affine_image(img, img_name_list.index(sys.argv[2]))
     img = cropper.affine_image(img, 0)
 ori_img = copy.deepcopy(img)
 if args['test_preprocess'] != None:
@@ -57,10 +55,10 @@ else:
     model = MainModel(args['backbone'], args['num_classes'])
 
 model = model.to(DEVICE)
-model.load_state_dict(torch.load(os.path.join(args['save_dir'], 'age_model.pth')))
+model.load_state_dict(torch.load(args['model_path']))
 model.eval()
 sm = GuidedBackpropSmoothGrad(model, cuda=args['cuda'])
 img = img.to(DEVICE).float()
 G = sm(img)
 
-save_as_gray_image(G, ori_img, os.path.join(args['visualize_path'], 'grad_visual.png'))
+save_as_gray_image(G, ori_img, os.path.join(args['visualize_path'], "vis_"+sys.argv[2].split('/')[-1]))
