@@ -33,6 +33,6 @@ python ./test/image_predict.py ./test/test_parameters.yml
 ### visualize
 first, get into folder **visualize**, then execute below command
 ```python
-python ./visualize/visualize.py ./visualize/visualize_parameters.yml {path of image you want to visualize}
+python ./visualize.py ./parameters.yml {path of image you want to visualize}
 ```
 
