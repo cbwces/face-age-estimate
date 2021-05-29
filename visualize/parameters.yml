@@ -1,11 +1,11 @@
 affine: true
 cuda: true
-data_file_info: /home/cbw233/src/retinaface/build/tmp_info.json
+data_file_info: /home/cbw233/src/retinaface/build/tmp.json
 img_size: 160
 margin: 0.15
-backbone: E
+backbone: M
 num_classes: 70
-model_path: ../save_dir/efficientnet_model.pth
+model_path: ../save_dir/mobilenet_model.pth
 stn: false
 test_preprocess: null
 visualize_path: ./

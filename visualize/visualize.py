@@ -14,7 +14,7 @@ from torch import nn as nn
 from torch.nn import functional as F
 import numpy as np
 
-from grad import GuidedBackpropSmoothGrad, save_as_gray_image
+from grad import GuidedBackpropSmoothGrad, save_as_gray_image, save_as_colormap_image, SmoothGrad
 sys.path.append('..')
 from network_utils import StnModule, MainModel
 from image_utils import *
@@ -57,8 +57,9 @@ else:
 model = model.to(DEVICE)
 model.load_state_dict(torch.load(args['model_path']))
 model.eval()
+# sm = SmoothGrad(model, cuda=args['cuda'])
 sm = GuidedBackpropSmoothGrad(model, cuda=args['cuda'])
 img = img.to(DEVICE).float()
 G = sm(img)
-
 save_as_gray_image(G, ori_img, os.path.join(args['visualize_path'], "vis_"+sys.argv[2].split('/')[-1]))
+# save_as_colormap_image(G, ori_img, os.path.join(args['visualize_path'], "vis_"+sys.argv[2].split('/')[-1]))

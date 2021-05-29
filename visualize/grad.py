@@ -157,3 +157,15 @@ def save_as_gray_image(img, origin_img, filename, percentile=99):
     blend_img = np.concatenate([origin_img, img_2d], axis=1)
     cv2.imwrite(filename, blend_img)
 
+def save_as_colormap_image(img, origin_img, filename, percentile=99):
+    img_2d = np.sum(img, axis=0)
+    t = np.percentile(img_2d, 80)
+    img_2d = (img_2d >= t).astype(np.uint8)
+    span = abs(np.percentile(img_2d, percentile))
+    vmin = -span
+    vmax = span
+    img_2d = np.clip((img_2d - vmin) / (vmax - vmin), -1, 1)
+    img_2d = img_2d*255
+    img_2d = cv2.applyColorMap(img_2d.astype(np.uint8), cv2.COLORMAP_JET)
+    blend_img = cv2.addWeighted(img_2d, 0.7, origin_img, 0.3, 0)
+    cv2.imwrite(filename, blend_img)
